@@ -62,7 +62,7 @@ set(CMAKE_CXX_FLAGS
 )
 
 set(SOURCE_FILES         
-  src/main.cpp
+  src/dso_ir_ros.cpp
 )
 
 include_directories(
@@ -78,11 +78,12 @@ include_directories(
 #target_link_libraries(dso_live ${DSO_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS})
 #rosbuild_link_boost(dso_live thread)
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES detect_depth_surflets
 #  CATKIN_DEPENDS boost cv_bridge eigen geometry_msgs image_geometry image_transport nodelet pcl_ros std_msgs tf tf2 tf2_ros visualization_msgs
+  CATKIN_DEPENDS roscpp roslib cv_bridge sensor_msgs geometry_msgs
 #  DEPENDS system_lib
-#  DEPENDS Boost Eigen3 OpenCV 
+  DEPENDS Boost Eigen3 OpenCV 
   LIBRARIES ${PROJECT_NAME}
 )
 
@@ -93,5 +94,5 @@ include_directories(include
                ${OPENCV_INCLUDE_DIRS}
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${DSO_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS})

@@ -11,7 +11,7 @@
        
     <arg name="record_cameras" default="false" />
     <arg name="run_rviz" default="true" />
-    <arg name="run_dso_ir" default="false" />
+    <arg name="run_dso_ir" default="true" />
     
     <arg name="run_profiler" value="false" />
 
@@ -27,27 +27,33 @@
     <!-- BEGIN Live sensor configuration -->
     <arg name="camera" default="camera" />
 
-    <!-- BEGIN Save data to .bag file configuration -->
-<!--    <arg name="savefile" default="/tmp/sr4000-camera.bag" if="$(arg sensor_type_sr4000)"/>
-    <arg name="savefile" default="/tmp/ds325-camera.bag" if="$(arg sensor_type_ds325)"/>
-    <arg name="savefile" default="/tmp/astra-rgbd-camera.bag" if="$(arg sensor_type_astra)"/>
-    <arg name="savefile" default="/tmp/xtion-rgbd-camera.bag" if="$(arg sensor_type_xtion)"/>
-    <arg name="savefile" default="/tmp/kinect-rgbd-camera.bag" if="$(arg sensor_type_kinect_xbox360)"/> -->
-
     <node pkg="rosbag" type="record" name="rosbag_record_rgbd_cam"
           args="record -o $(arg savefile) /camera/rgb/image_raw /camera/rgb/camera_info /camera/depth_registered/image_raw"
           if="$(arg record_cameras)" />
     <!-- END Save data to .bag file configuration -->
 
-    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
-        <param name="video_device" value="/dev/video0" />
-        <param name="image_width" value="640" />
-        <param name="image_height" value="480" />
+    <node pkg="dso_ir_ros" type="dso_ir_ros" name="dso_ir_ros"  output="screen" 
+          if="$(arg run_dso_ir)">
+        <remap from="image" to="/usb_cam/image_raw"/>
+        <param name="calibration_file" value="$(find dso_ir_ros)/conf/camera_ir.txt"/>
+    </node>
+    
+    <node pkg="usb_cam" type="usb_cam_node" name="usb_cam" output="screen" >
+        <param name="video_device" value="/dev/video1" />
+        <param name="image_width" value="1280" />
+        <param name="image_height" value="720" />
         <param name="pixel_format" value="yuyv" />
-        <param name="camera_frame_id" value="usb_cam" />
+        <!--<param name="pixel_format" value="grey" />-->
+        <param name="framerate" value="30" />
+        <param name="camera_frame_id" value="$(arg rgb_optical_frame)" />
         <param name="io_method" value="mmap"/>
     </node>       
-                
+
+    <!--<node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+        <remap from="image" to="/usb_cam/image_raw"/>
+        <param name="autosize" value="true" />
+    </node>-->
+                                                
     <node name="base_to_optical" pkg="tf" 
           type="static_transform_publisher"  
           args="0.0 0.0 0.5  0.5 -0.5 0.5 -0.5 $(arg map_frame) $(arg rgb_optical_frame) 100" />   
