@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Tools to change and view node example output. -->
+<launch>
+    
+    <!--<env name="ROS_IP" value="192.168.1.241"/>-->
+    
+    <env name="ROSCONSOLE_CONFIG_FILE" 
+         value="$(find dso_ir_ros)/cfg/rosconsole.conf"/> 
+    
+    <arg name="play_bagfile" default="false" />
+       
+    <arg name="record_cameras" default="false" />
+    <arg name="run_rviz" default="true" />
+    <arg name="run_dso_ir" default="false" />
+    
+    <arg name="run_profiler" value="false" />
+
+    <arg name="profile_attribute" value="" unless="$(arg run_profiler)"/>
+    <arg name="profile_attribute" 
+         value="valgrind &#x002d;&#x002d;tool=callgrind &#x002d;&#x002d;collect-atstart=no" 
+         if="$(arg run_profiler)" />
+
+    <arg name="map_frame" default="optitrack" />
+    <arg name="rgb_optical_frame" default="rgb_optical_frame" />
+    <arg name="rgbd_frame" default="rgbd_frame" />
+
+    <!-- BEGIN Live sensor configuration -->
+    <arg name="camera" default="camera" />
+
+    <!-- BEGIN Save data to .bag file configuration -->
+<!--    <arg name="savefile" default="/tmp/sr4000-camera.bag" if="$(arg sensor_type_sr4000)"/>
+    <arg name="savefile" default="/tmp/ds325-camera.bag" if="$(arg sensor_type_ds325)"/>
+    <arg name="savefile" default="/tmp/astra-rgbd-camera.bag" if="$(arg sensor_type_astra)"/>
+    <arg name="savefile" default="/tmp/xtion-rgbd-camera.bag" if="$(arg sensor_type_xtion)"/>
+    <arg name="savefile" default="/tmp/kinect-rgbd-camera.bag" if="$(arg sensor_type_kinect_xbox360)"/> -->
+
+    <node pkg="rosbag" type="record" name="rosbag_record_rgbd_cam"
+          args="record -o $(arg savefile) /camera/rgb/image_raw /camera/rgb/camera_info /camera/depth_registered/image_raw"
+          if="$(arg record_cameras)" />
+    <!-- END Save data to .bag file configuration -->
+
+    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+        <param name="video_device" value="/dev/video0" />
+        <param name="image_width" value="640" />
+        <param name="image_height" value="480" />
+        <param name="pixel_format" value="yuyv" />
+        <param name="camera_frame_id" value="usb_cam" />
+        <param name="io_method" value="mmap"/>
+    </node>       
+                
+    <node name="base_to_optical" pkg="tf" 
+          type="static_transform_publisher"  
+          args="0.0 0.0 0.5  0.5 -0.5 0.5 -0.5 $(arg map_frame) $(arg rgb_optical_frame) 100" />   
+        
+    <arg name="rviz_config_file" default="dso_ir_ros.rviz" />    
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" 
+          args="-d $(find dso_ir_ros)/rviz/$(arg rviz_config_file)" if="$(arg run_rviz)"/>
+</launch>

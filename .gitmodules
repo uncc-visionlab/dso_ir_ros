@@ -1,0 +1,3 @@
+[submodule "dso_ir"]
+	path = dso_ir
+	url = https://github.com/uncc-visionlab/dso_ir.git
