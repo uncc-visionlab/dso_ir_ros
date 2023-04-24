@@ -14,9 +14,12 @@ To access computed information in real-time, I recommend to implement your own O
 
 * **A Photometrically Calibrated Benchmark For Monocular Visual Odometry**, *J. Engel, V. Usenko, D. Cremers*, In arXiv:1607.02555, 2016
 
-
-
 # 1. Installation
+
+After cloning make sure to run 
+
+cd dso_ir_ros
+git submodule update --init --recursive
 
 1. Install DSO. We need DSO to be compiled with OpenCV (to read the vignette image), and with Pangolin (for 3D visualization).
 2. run 
