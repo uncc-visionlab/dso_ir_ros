@@ -113,7 +113,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /usb_cam/image_raw
+      Image Topic: /camera/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
